@@ -32,12 +32,34 @@ with st.sidebar:
     universe=st.selectbox('Estado de las órdenes',['Todas las órdenes','Solo comerciales'])
     dates=st.date_input('Fecha de formalización',value=(orders.fecha.min().date(),orders.fecha.max().date()),
                        min_value=orders.fecha.min().date(),max_value=orders.fecha.max().date(),format='DD/MM/YYYY')
-    markets=st.multiselect('Acuerdo marco',sorted(orders.mercado.unique()),placeholder='Buscar o seleccionar mercados')
-    with st.expander('Entidad y proveedor'):
+    with st.expander('Entidad y proveedor', expanded=True):
         enames=orders[['ruc_entidad','entidad']].drop_duplicates().set_index('ruc_entidad').entidad.to_dict()
         pnames=orders[['ruc_proveedor','proveedor']].drop_duplicates().set_index('ruc_proveedor').proveedor.to_dict()
-        entities=st.multiselect('Entidades',sorted(enames),format_func=lambda k:f'{enames[k]} · {k}',placeholder='Buscar entidad por nombre o RUC')
-        suppliers=st.multiselect('Proveedores',sorted(pnames),format_func=lambda k:f'{pnames[k]} · {k}',placeholder='Buscar proveedor por nombre o RUC')
+        entities=st.multiselect('Entidades',sorted(enames),format_func=lambda k:f'{enames[k]} - {k}',placeholder='Buscar entidad por nombre o RUC')
+        suppliers=st.multiselect('Proveedores',sorted(pnames),format_func=lambda k:f'{pnames[k]} - {k}',placeholder='Buscar proveedor por nombre o RUC')
+
+    available=filter_orders(
+        orders,
+        commercial=universe=='Solo comerciales',
+        start=dates[0] if isinstance(dates,(tuple,list)) and len(dates)==2 else None,
+        end=dates[1] if isinstance(dates,(tuple,list)) and len(dates)==2 else None,
+        entities=entities,
+        suppliers=suppliers
+    )
+    market_options=sorted(available.mercado.dropna().unique().tolist())
+
+    previous=st.session_state.get('selected_markets',[])
+    valid=[m for m in previous if m in market_options]
+    if valid!=previous:
+        st.session_state['selected_markets']=valid
+
+    markets=st.multiselect(
+        'Acuerdo marco',
+        market_options,
+        placeholder='Buscar mercados disponibles',
+        key='selected_markets'
+    )
+    st.caption(f'{len(market_options)} mercados disponibles para los filtros seleccionados.')
     st.caption('Datos históricos. Los estados corresponden a la fuente; no describen obligaciones vigentes.')
     extracted=pd.Timestamp(manifest['extracted_at']).tz_convert('America/Lima')
     st.caption('Extracción: '+extracted.strftime('%d/%m/%Y %H:%M')+' · Lima')

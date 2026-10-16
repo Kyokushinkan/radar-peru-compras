@@ -99,9 +99,10 @@ class AppTests(unittest.TestCase):
   self.assertEqual(app.metric[0].value,'142,537')
   app.sidebar.selectbox[0].set_value('Todas las órdenes').run(); self.assert_ok()
   self.assertEqual(app.metric[0].value,'142,587')
-  app.sidebar.multiselect[0].set_value([app.sidebar.multiselect[0].options[0]]).run(); self.assert_ok()
+  market_widget=next(x for x in app.sidebar.multiselect if x.label=='Acuerdo marco')
+  market_widget.set_value([market_widget.options[0]]).run(); self.assert_ok()
   self.assertEqual(app.metric[4].value,'1')
-  app.sidebar.multiselect[0].set_value([]).run(); self.assert_ok()
+  next(x for x in app.sidebar.multiselect if x.label=='Acuerdo marco').set_value([]).run(); self.assert_ok()
   self.assertEqual(app.metric[4].value,'22')
 if __name__=='__main__': unittest.main()
 
