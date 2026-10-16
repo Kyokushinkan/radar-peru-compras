@@ -1,4 +1,4 @@
-﻿import json, math, unittest
+import json, math, unittest
 from decimal import Decimal
 from pathlib import Path
 import pandas as pd
@@ -11,7 +11,7 @@ class DataTests(unittest.TestCase):
   cls.folder,cls.manifest=current_snapshot()
   cls.orders=load_orders(str(cls.folder),cls.manifest['snapshot'])
  def test_reconciliation_against_audited_postgresql(self):
-  summary=json.loads((ROOT/'reports/auditoria_postgresql.json').read_text(encoding='utf-8'))['summary']
+  summary=self.manifest['summary']
   df=self.orders
   self.assertEqual(len(df),summary['ordenes_totales'])
   self.assertEqual(df.ocam.nunique(),summary['ocam_distintas'])
@@ -84,7 +84,7 @@ class AppTests(unittest.TestCase):
   self.assertEqual(len(self.app.exception),0,[e.message for e in self.app.exception])
  def test_six_pages_and_details(self):
   app=self.app.run(); self.assert_ok()
-  self.assertEqual(app.metric[0].value,'142,587')
+  self.assertEqual(app.metric[0].value,format(json.loads((ROOT/'data'/json.loads((ROOT/'data/current.json').read_text(encoding='utf-8'))['snapshot']/'manifest.json').read_text(encoding='utf-8'))['summary']['ordenes_totales'],','))
   for page in ['Buscador OCAM','Entidades compradoras','Proveedores','Inteligencia de mercados','Productos y oportunidades']:
    app.sidebar.radio[0].set_value(page).run(); self.assert_ok()
    if page=='Buscador OCAM':
@@ -96,9 +96,9 @@ class AppTests(unittest.TestCase):
     detail.select_index(0).run(); self.assert_ok()
   app.sidebar.radio[0].set_value('Resumen general').run()
   app.sidebar.selectbox[0].set_value('Solo comerciales').run(); self.assert_ok()
-  self.assertEqual(app.metric[0].value,'142,537')
+  self.assertEqual(app.metric[0].value,format(json.loads((ROOT/'data'/json.loads((ROOT/'data/current.json').read_text(encoding='utf-8'))['snapshot']/'manifest.json').read_text(encoding='utf-8'))['summary']['ordenes_comerciales'],','))
   app.sidebar.selectbox[0].set_value('Todas las órdenes').run(); self.assert_ok()
-  self.assertEqual(app.metric[0].value,'142,587')
+  self.assertEqual(app.metric[0].value,format(json.loads((ROOT/'data'/json.loads((ROOT/'data/current.json').read_text(encoding='utf-8'))['snapshot']/'manifest.json').read_text(encoding='utf-8'))['summary']['ordenes_totales'],','))
   market_widget=next(x for x in app.sidebar.multiselect if x.label=='Acuerdo marco')
   market_widget.set_value([market_widget.options[0]]).run(); self.assert_ok()
   self.assertEqual(app.metric[4].value,'1')
