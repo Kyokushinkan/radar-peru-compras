@@ -32,12 +32,12 @@ with st.sidebar:
     universe=st.selectbox('Estado de las órdenes',['Todas las órdenes','Solo comerciales'])
     dates=st.date_input('Fecha de formalización',value=(orders.fecha.min().date(),orders.fecha.max().date()),
                        min_value=orders.fecha.min().date(),max_value=orders.fecha.max().date(),format='DD/MM/YYYY')
-    markets=st.multiselect('Acuerdo marco',sorted(orders.mercado.unique()))
+    markets=st.multiselect('Acuerdo marco',sorted(orders.mercado.unique()),placeholder='Buscar o seleccionar mercados')
     with st.expander('Entidad y proveedor'):
         enames=orders[['ruc_entidad','entidad']].drop_duplicates().set_index('ruc_entidad').entidad.to_dict()
         pnames=orders[['ruc_proveedor','proveedor']].drop_duplicates().set_index('ruc_proveedor').proveedor.to_dict()
-        entities=st.multiselect('Entidades',sorted(enames),format_func=lambda k:f'{enames[k]} · {k}')
-        suppliers=st.multiselect('Proveedores',sorted(pnames),format_func=lambda k:f'{pnames[k]} · {k}')
+        entities=st.multiselect('Entidades',sorted(enames),format_func=lambda k:f'{enames[k]} · {k}',placeholder='Buscar entidad por nombre o RUC')
+        suppliers=st.multiselect('Proveedores',sorted(pnames),format_func=lambda k:f'{pnames[k]} · {k}',placeholder='Buscar proveedor por nombre o RUC')
     st.caption('Datos históricos. Los estados corresponden a la fuente; no describen obligaciones vigentes.')
     extracted=pd.Timestamp(manifest['extracted_at']).tz_convert('America/Lima')
     st.caption('Extracción: '+extracted.strftime('%d/%m/%Y %H:%M')+' · Lima')
