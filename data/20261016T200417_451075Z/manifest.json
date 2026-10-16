@@ -1,0 +1,122 @@
+{
+  "snapshot": "20261016T200417_451075Z",
+  "extracted_at": "2026-10-16T20:04:27.453437+00:00",
+  "source": "PostgreSQL peru_compras_radar / peru_compras",
+  "publication_authorized": false,
+  "summary": {
+    "ordenes_totales": 154883,
+    "ocam_distintas": 154883,
+    "monto_bruto": "2703999480.05",
+    "ordenes_comerciales": 154733,
+    "monto_comercial": "2701879762.38",
+    "proveedores_distintos": 1746,
+    "entidades_distintas": 1980,
+    "acuerdos_normalizados": 22,
+    "fecha_minima": "2025-01-02",
+    "fecha_maxima": "2026-09-30"
+  },
+  "files": {
+    "ordenes": {
+      "file": "ordenes.parquet",
+      "rows": 154883,
+      "bytes": 2813496,
+      "sha256": "03810cb79097d7f9d0dabbfe8bdcdc5a56f9a17a547faf08a3d497f480ea1a61",
+      "columns": [
+        "ocam",
+        "ruc_entidad",
+        "ruc_proveedor",
+        "fecha",
+        "estado",
+        "estado_comercial",
+        "mercado",
+        "subtotal_centimos",
+        "igv_centimos",
+        "total_centimos"
+      ]
+    },
+    "entidades": {
+      "file": "entidades.parquet",
+      "rows": 1980,
+      "bytes": 38401,
+      "sha256": "d221c2f21a63b55abc627fc17a8df360584fbc04de1c4739aa9a8e863bcd6361",
+      "columns": [
+        "ruc",
+        "nombre"
+      ]
+    },
+    "proveedores": {
+      "file": "proveedores.parquet",
+      "rows": 1746,
+      "bytes": 36143,
+      "sha256": "e77d02af0fb74e3eda591b03a2525ed2d99884e36e798d96ad2735baec468405",
+      "columns": [
+        "ruc",
+        "nombre"
+      ]
+    },
+    "acuerdos": {
+      "file": "acuerdos.parquet",
+      "rows": 22,
+      "bytes": 3383,
+      "sha256": "a8d82516cc66b21276a79718e3965c55bb5eea59b7c6d9e20e8ff409c68f43ea",
+      "columns": [
+        "mercado",
+        "denominaciones_originales"
+      ]
+    },
+    "items": {
+      "file": "items.parquet",
+      "rows": 1180,
+      "bytes": 128231,
+      "sha256": "bca89855d6bc5b7b39c07e796c0428c4e676651d5b10f5f82845b38ed54eb65f",
+      "columns": [
+        "item_id",
+        "ocam",
+        "nro_item",
+        "codigo_item",
+        "descripcion",
+        "cantidad",
+        "unidad_medida",
+        "precio_unitario",
+        "marca",
+        "modelo",
+        "confianza_extraccion",
+        "total_item_centimos"
+      ]
+    },
+    "limpieza": {
+      "file": "limpieza.parquet",
+      "rows": 43,
+      "bytes": 9955,
+      "sha256": "72e7dd7fc436f6a4233342e0e72a134084fe2528a75e980ca5c05a77336830e0",
+      "columns": [
+        "ruc_entidad",
+        "entidad",
+        "tipo_demanda",
+        "ordenes_2026",
+        "meses_activos",
+        "proveedores_2026",
+        "top1_pct",
+        "crecimiento_pct",
+        "pct_monto_nuevos",
+        "monto_2025_centimos",
+        "monto_2026_centimos"
+      ]
+    }
+  },
+  "reconciled": true,
+  "items_coverage": {
+    "raw_items": 1441,
+    "raw_orders": 880,
+    "validated_items": 1180,
+    "validated_orders": 793,
+    "total_orders": 154883
+  },
+  "definitions": {
+    "commercial": "estado_comercial=true de la fuente; excluye RESUELTA y ORDEN DE COMPRA NULA",
+    "money": "Enteros de céntimos para importes; precio unitario y cantidad conservan Decimal original",
+    "items": "Procesamiento vigente aprobado si existe; en otro caso último finalizado. Sólo procesado, reconciliado y suma contra orden con diferencia <= S/ 0.02. No extrapolar.",
+    "links": "No se muestran enlaces no verificados. Los enlaces de almacenamiento de la fuente se excluyeron del snapshot.",
+    "cleaning": "Vista histórica enero-julio 2025 frente a enero-julio 2026; entidades con monto 2026 >= S/ 300000. Sin puntuación de oportunidad."
+  }
+}
