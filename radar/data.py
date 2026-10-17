@@ -60,7 +60,7 @@ def grouped(df,column):
 
 def monthly(df):
     if df.empty: return pd.DataFrame(columns=['mes','centimos','ordenes','Monto (S/)'])
-    result=df.groupby('mes').agg(centimos=('total_centimos','sum'),ordenes=('ocam','nunique'))
+    result=df.groupby('mes',observed=True).agg(centimos=('total_centimos','sum'),ordenes=('ocam','nunique'))
     months=pd.period_range(df.fecha.min(),df.fecha.max(),freq='M').astype(str)
     result=result.reindex(months,fill_value=0).rename_axis('mes').reset_index()
     result['Monto (S/)']=result.centimos.astype(float)/100
