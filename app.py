@@ -153,7 +153,18 @@ elif page=='Buscador OCAM':
             right.write('**Proveedor:** '+record.proveedor); right.write('**RUC:** '+record.ruc_proveedor)
             st.write('**Acuerdo marco:** '+record.mercado)
             st.write(f"**Fecha:** {record.fecha:%d/%m/%Y} · **Estado registrado:** {record.estado} · **Total:** {money(record.total_centimos)}")
-            st.caption('No hay un enlace oficial verificado disponible en este snapshot para mostrar.')
+            st.markdown('**Documentos originales de la OCAM**')
+            enlaces = [
+                ('Ver orden electrónica', 'url_orden_electronica'),
+                ('Ver orden digitalizada', 'url_orden_digitalizada'),
+            ]
+            columnas = st.columns(2)
+            for columna, (etiqueta, campo) in zip(columnas, enlaces):
+                valor = record.get(campo)
+                if isinstance(valor, str) and valor.startswith('https://'):
+                    columna.link_button(etiqueta, valor, use_container_width=True)
+                else:
+                    columna.caption(f'{etiqueta}: enlace no disponible.')
             items=table(folder,manifest,'items'); detail=items[items.ocam==selected].copy()
             if detail.empty: st.info('Esta OCAM no tiene ítems conciliados incluidos en la muestra.')
             else:
