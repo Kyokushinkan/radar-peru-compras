@@ -166,7 +166,7 @@ elif page in ('Entidades compradoras','Proveedores'):
     other_name='proveedor' if is_entity else 'entidad'
     query=st.text_input('Buscar por nombre o RUC',placeholder='Escribe parte del nombre, con o sin tildes')
     directory=filtered[[key,name]].drop_duplicates().copy()
-    search=(directory[key]+' '+directory[name]).map(normalize)
+    search=(directory[key].astype(str)+' '+directory[name].astype(str)).map(normalize)
     for word in normalize(query).split(): directory=directory[search.loc[directory.index].str.contains(word,regex=False)]
     subset=filtered[filtered[key].isin(directory[key])]
     if subset.empty: st.info('No se encontraron coincidencias.'); st.stop()

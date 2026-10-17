@@ -35,7 +35,7 @@ def load_orders(folder_string,signature):
     orders['busqueda_ocam']=orders.ocam.map(normalize)
 
     # Optimizar memoria de columnas repetitivas.
-    for column in ('mercado', 'estado'):
+    for column in ('mercado', 'estado', 'entidad', 'proveedor', 'ruc_proveedor', 'ruc_entidad', 'mes'):
         orders[column] = orders[column].astype('category')
 
     return orders
