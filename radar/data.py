@@ -33,6 +33,11 @@ def load_orders(folder_string,signature):
     orders['fecha']=pd.to_datetime(orders.fecha)
     orders['mes']=orders.fecha.dt.to_period('M').astype(str)
     orders['busqueda_ocam']=orders.ocam.map(normalize)
+
+    # Optimizar memoria de columnas repetitivas.
+    for column in ('mercado', 'estado'):
+        orders[column] = orders[column].astype('category')
+
     return orders
 
 def filter_orders(df,commercial=True,start=None,end=None,entities=(),suppliers=(),markets=(),query='',minimum=None,maximum=None):
@@ -51,7 +56,7 @@ def metrics(df):
     return {'orders':df.ocam.nunique(),'cents':int(df.total_centimos.sum()),'entities':df.ruc_entidad.nunique(),'suppliers':df.ruc_proveedor.nunique(),'markets':df.mercado.nunique()}
 
 def grouped(df,column):
-    return df.groupby(column,dropna=False).agg(ordenes=('ocam','nunique'),centimos=('total_centimos','sum'),entidades=('ruc_entidad','nunique'),proveedores=('ruc_proveedor','nunique'),mercados=('mercado','nunique')).reset_index().sort_values('centimos',ascending=False)
+    return df.groupby(column,dropna=False,observed=True).agg(ordenes=('ocam','nunique'),centimos=('total_centimos','sum'),entidades=('ruc_entidad','nunique'),proveedores=('ruc_proveedor','nunique'),mercados=('mercado','nunique')).reset_index().sort_values('centimos',ascending=False)
 
 def monthly(df):
     if df.empty: return pd.DataFrame(columns=['mes','centimos','ordenes','Monto (S/)'])
@@ -62,7 +67,7 @@ def monthly(df):
     return result
 
 def concentration(df,column):
-    amounts=df.groupby(column).total_centimos.sum().sort_values(ascending=False)
+    amounts=df.groupby(column,observed=True).total_centimos.sum().sort_values(ascending=False)
     total=int(amounts.sum())
     return {'top1':float(amounts.head(1).sum())/total*100 if total else None,
             'top3':float(amounts.head(3).sum())/total*100 if total else None,
@@ -81,7 +86,7 @@ def comparable_growth(df,start,end):
     if not common: return pd.DataFrame(),''
     subset=df[df.fecha.dt.month.isin(common) & df.fecha.dt.year.isin([before,after])].copy()
     subset['anio']=subset.fecha.dt.year
-    values=subset.pivot_table(index='mercado',columns='anio',values='total_centimos',aggfunc='sum',fill_value=0)
+    values=subset.pivot_table(index='mercado',columns='anio',observed=True,values='total_centimos',aggfunc='sum',fill_value=0)
     for year in (before,after):
         if year not in values: values[year]=0
     values=values.rename(columns={before:'anterior_centimos',after:'reciente_centimos'}).reset_index()

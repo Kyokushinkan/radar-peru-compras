@@ -216,7 +216,7 @@ elif page=='Inteligencia de mercados':
         st.dataframe(growth[['mercado','Monto anterior (S/)','Monto reciente (S/)','crecimiento_pct','base']].rename(columns={'mercado':'Mercado','crecimiento_pct':'Variación (%)','base':'Base'}),hide_index=True,width='stretch')
     st.subheader('Concentración de proveedores')
     records=[]
-    for market,group in filtered.groupby('mercado'):
+    for market,group in filtered.groupby('mercado', observed=True):
         conc=concentration(group,'ruc_proveedor'); records.append({'Mercado':market,'Principal (%)':conc['top1'],'Tres principales (%)':conc['top3'],'Proveedores':group.ruc_proveedor.nunique()})
     st.dataframe(pd.DataFrame(records).sort_values('Principal (%)',ascending=False),hide_index=True,width='stretch')
     st.caption('Participaciones calculadas sobre el monto de cada mercado dentro del universo seleccionado.')

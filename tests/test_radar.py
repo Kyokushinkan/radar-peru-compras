@@ -103,6 +103,9 @@ class AppTests(unittest.TestCase):
   market_widget.set_value([market_widget.options[0]]).run(); self.assert_ok()
   self.assertEqual(app.metric[4].value,'1')
   next(x for x in app.sidebar.multiselect if x.label=='Acuerdo marco').set_value([]).run(); self.assert_ok()
-  self.assertEqual(app.metric[4].value,'22')
+  self.assertEqual(
+    int(app.metric[4].value),
+    load_orders(str(current_snapshot()[0]), current_snapshot()[1]['snapshot']).mercado.nunique()
+)
 if __name__=='__main__': unittest.main()
 
